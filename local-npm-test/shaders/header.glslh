@@ -1,0 +1,34 @@
+/* @uniforms
+  {
+    "u_intensity": { "type": "f", "value": 1.0 }
+  }
+*/
+
+#include "./math_utils.glsl"
+#include "./shape_utils.glsl"
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform float u_intensity;
+uniform float u_time;
+
+void main() {
+    // Center coordinates (-0.5 to 0.5)
+    vec2 st = (gl_FragCoord.xy - vec2(300.0, 200.0)) / 400.0;
+    
+    // 1. Get wave pulse from math_utils.glsl (uses Math.PI)
+    float wave = getPulse(u_time, 1.5);
+    
+    // 2. Get ring shape from shape_utils.glsl (uses Math.TAU)
+    float ringMask = getRing(st, 0.25 * wave, 0.05);
+    
+    // Combine into a glowing dual-color visual
+    vec3 baseColor = vec3(0.1, 0.4, 0.8);
+    vec3 ringColor = vec3(1.0, 0.2, 0.6) * wave;
+    
+    vec3 finalColor = mix(baseColor, ringColor, ringMask) * u_intensity;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}

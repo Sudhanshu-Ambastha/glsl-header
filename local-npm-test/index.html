@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>glslh Live Preview Test</title>
+
+    <!-- Import map pointing to local node_modules -->
+    <script type="importmap">
+      {
+        "imports": {
+          "glslh": "./node_modules/glslh/src/dom-canvas.js",
+          "three": "./node_modules/three/build/three.module.js"
+        }
+      }
+    </script>
+
+    <style>
+      body {
+        margin: 0;
+        background-color: #121216;
+        color: #ffffff;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      h2 {
+        margin-bottom: 8px;
+      }
+      p {
+        color: #8a8a9e;
+        font-size: 14px;
+        margin-top: 0;
+      }
+      canvas.glsl-canvas {
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <h2>glslh Preprocessor Test</h2>
+    <p>
+      Loaded via installed npm package <code>glslh</code> with multi-file
+      include &amp; Math.PI expansion.
+    </p>
+
+    <!-- Pointing directly to shaders directory one level up -->
+    <canvas
+      class="glsl-canvas"
+      data-fragment-url="./shaders/header.glslh"
+      width="600"
+      height="400"
+    ></canvas>
+
+    <script type="module">
+      import { autoInitGlslCanvases } from "glslh";
+
+      // Initialize canvases
+      const controllers = autoInitGlslCanvases();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = performance.now() * 0.001;
+
+        if (controllers && Array.isArray(controllers)) {
+          controllers.forEach((ctrl) => {
+            if (ctrl.material && ctrl.material.uniforms) {
+              if (ctrl.material.uniforms.u_time) {
+                ctrl.material.uniforms.u_time.value = elapsedTime;
+              }
+              if (ctrl.material.uniforms.u_intensity) {
+                ctrl.material.uniforms.u_intensity.value = 1.0;
+              }
+            }
+          });
+        }
+      }
+      animate();
+    </script>
+  </body>
+</html>

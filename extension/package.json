@@ -1,0 +1,83 @@
+{
+  "name": "glslh-previewer",
+  "displayName": "glslh-previewer",
+  "description": "Instant live WebGL shader previewer and preprocessor for glslh.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.140.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:glsl",
+    "onLanguage:glslh"
+  ],
+  "main": "./dist/extension.js",
+  "browser": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "glslh-previewer.openPreview",
+        "title": "GLSLH: Open Live Shader Preview",
+        "icon": "$(play)"
+      }
+    ],
+    "languages": [
+      {
+        "id": "glslh",
+        "aliases": [
+          "GLSLH",
+          "glslh"
+        ],
+        "extensions": [
+          ".glslh"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./assets/glsl_header.svg",
+          "dark": "./assets/glsl_header.svg"
+        }
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "glslh-previewer.openPreview",
+          "when": "resourceExtname == .glslh || resourceExtname == .glsl",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "preview-web": "vscode-test-web --extensionDevelopmentPath=.",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.20.5",
+    "@types/vscode": "^1.140.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-web": "^0.0.81",
+    "copy-webpack-plugin": "^14.0.0",
+    "eslint": "^9.39.3",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "webpack": "^5.105.3",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "glslh": "^1.0.1"
+  }
+}

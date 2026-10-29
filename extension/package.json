@@ -1,13 +1,26 @@
 {
+  "publisher": "SudhanshuAmbastha",
   "name": "glslh-previewer",
   "displayName": "glslh-previewer",
   "description": "Instant live WebGL shader previewer and preprocessor for glslh.",
-  "version": "0.0.1",
+  "version": "1.0.1",
+  "icon": "assets/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sudhanshu-Ambastha/glsl-header.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sudhanshu-Ambastha/glsl-header/issues"
+  },
   "engines": {
     "vscode": "^1.140.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Formatters",
+    "Languages",
+    "Linters",
+    "Programming Languages"
   ],
   "activationEvents": [
     "onLanguage:glsl",
@@ -38,6 +51,13 @@
           "light": "./assets/glsl_header.svg",
           "dark": "./assets/glsl_header.svg"
         }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "glslh",
+        "scopeName": "source.glslh",
+        "path": "./syntaxes/glslh.tmLanguage.json"
       }
     ],
     "menus": {

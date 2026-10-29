@@ -1,0 +1,14 @@
+{
+  "scopeName": "source.glslh",
+  "fileTypes": ["glslh", "glsl"],
+  "patterns": [
+    {
+      "match": "^\\s*(#\\s*include)\\b",
+      "name": "keyword.control.directive.include"
+    },
+    {
+      "include": "source.glsl"
+    }
+  ],
+  "name": "GLSLH"
+}

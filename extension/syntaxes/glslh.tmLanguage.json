@@ -1,14 +1,56 @@
 {
   "scopeName": "source.glslh",
-  "fileTypes": ["glslh", "glsl"],
+  "fileTypes": ["glslh", "glsl", "frag", "vert"],
   "patterns": [
     {
       "match": "^\\s*(#\\s*include)\\b",
-      "name": "keyword.control.directive.include"
+      "name": "keyword.control.directive.include.c"
     },
     {
-      "include": "source.glsl"
+      "match": "\\bMath\\.(PI|TAU|E|LN2|LN10|LOG2E|LOG10E|SQRT1_2|SQRT2)\\b",
+      "name": "support.constant.property.math.js"
+    },
+    {
+      "match": "/\\*\\s*@uniforms[\\s\\S]*?\\*/",
+      "name": "comment.block.documentation.uniforms"
+    },
+    {
+      "include": "#glsl-fallback"
     }
   ],
+  "repository": {
+    "glsl-fallback": {
+      "patterns": [
+        {
+          "include": "source.glsl"
+        },
+        {
+          "match": "\\b(uniform|varying|attribute|precision|highp|mediump|lowp|const|void|bool|int|float|vec2|vec3|vec4|mat2|mat3|mat4)\\b",
+          "name": "storage.type.glsl"
+        },
+        {
+          "match": "\\b(if|else|for|while|return|break|continue)\\b",
+          "name": "keyword.control.glsl"
+        },
+        {
+          "match": "\\b(sin|cos|tan|asin|acos|atan|pow|exp|log|sqrt|abs|sign|floor|ceil|round|mod|min|max|clamp|mix|step|smoothstep|length|distance|dot|cross|normalize)\\b",
+          "name": "support.function.glsl"
+        },
+        {
+          "begin": "/\\*",
+          "end": "\\*/",
+          "name": "comment.block.glsl"
+        },
+        {
+          "match": "//.*$",
+          "name": "comment.line.double-slash.glsl"
+        },
+        {
+          "match": "\\b[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?\\b",
+          "name": "constant.numeric.glsl"
+        }
+      ]
+    }
+  },
   "name": "GLSLH"
 }

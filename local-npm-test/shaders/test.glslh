@@ -1,0 +1,23 @@
+precision highp float;
+
+/* @uniforms
+  {
+    "u_intensity": { "type": "f", "value": 1.0 }
+  }
+*/
+
+#include "./math_utils.glsl"
+#include "./other_utils.glsl"
+
+out vec4 fragColor;
+
+void main() {
+    // Normalize coordinates from 0.0 to 1.0 based on resolution
+    vec2 st = gl_FragCoord.xy / u_resolution;
+
+    float n1 = getNoise(gl_FragCoord.xy);
+    float n2 = getNoise(st * 10.0, 0.5); // Scaled safely
+
+    float finalNoise = (n1 * 0.5) + (n2 * 0.5);
+    fragColor = vec4(vec3(finalNoise * u_intensity), 1.0);
+}

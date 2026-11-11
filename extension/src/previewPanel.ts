@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 // @ts-ignore
 import { GLSLHParser } from "glslh/parser";
+// @ts-ignore
+import { GLSLHLoader } from "glslh/loader";
 
 export class ShaderPreviewPanel {
   public static currentPanel: ShaderPreviewPanel | undefined;
@@ -67,13 +69,11 @@ export class ShaderPreviewPanel {
   ): Promise<vscode.Uri> {
     const cleanPath = rawPath.trim();
 
-    // 0. If the path is ALREADY an absolute path or URI (e.g. C:/... or file:///...), handle it directly
     if (
       cleanPath.match(/^[a-zA-Z]:[/\\]/) ||
       cleanPath.startsWith("file://") ||
       cleanPath.startsWith("/")
     ) {
-      // If it starts with a slash but is a Windows absolute path representation or absolute URI
       const targetUri = cleanPath.startsWith("file://")
         ? vscode.Uri.parse(cleanPath)
         : vscode.Uri.file(cleanPath);
@@ -86,17 +86,14 @@ export class ShaderPreviewPanel {
     const sub = cleanPath.replace(/^\.?\//, "");
     const candidates: vscode.Uri[] = [];
 
-    // 1. Relative to the file performing the include
     const importerDir = vscode.Uri.joinPath(importerUri, "..");
     candidates.push(vscode.Uri.joinPath(importerDir, sub));
 
-    // 2. Relative to workspace root
     const ws = vscode.workspace.getWorkspaceFolder(document.uri);
     if (ws) {
       candidates.push(vscode.Uri.joinPath(ws.uri, sub));
     }
 
-    // 3. Walk up parent folders to handle overlapping workspace roots
     let dir = importerDir;
     for (let i = 0; i < 10; i++) {
       candidates.push(vscode.Uri.joinPath(dir, sub));
@@ -119,6 +116,7 @@ export class ShaderPreviewPanel {
     const rawCode = document.getText();
     const fileName = document.fileName.split(/[\\/]/).pop() || "Shader";
 
+    // Properly instantiate GLSLHParser with the custom file resolver, then pass to GLSLHLoader
     const parser = new GLSLHParser(
       async (filePath: string, importerPath?: string) => {
         try {
@@ -141,11 +139,16 @@ export class ShaderPreviewPanel {
       },
     );
 
+    const loader = new GLSLHLoader(parser);
+
     let processedCode = rawCode;
+    let uniformsMap = {};
     let preprocessError = "";
+
     try {
-      const parsedModule = await parser.parse(rawCode, document.uri.path);
-      processedCode = parsedModule.source;
+      const shaderModule = await loader.loadShaderModule(document.uri.path);
+      processedCode = shaderModule.source;
+      uniformsMap = shaderModule.uniforms;
     } catch (e) {
       preprocessError = e instanceof Error ? e.message : String(e);
       console.error("glslh preprocessing error:", preprocessError);
@@ -153,6 +156,7 @@ export class ShaderPreviewPanel {
 
     this._panel.webview.html = this._getHtmlForWebview(
       processedCode,
+      uniformsMap,
       fileName,
       preprocessError,
     );
@@ -171,6 +175,7 @@ export class ShaderPreviewPanel {
 
   private _getHtmlForWebview(
     shaderSource: string,
+    uniforms: Record<string, any>,
     title: string,
     preprocessError: string,
   ): string {
@@ -189,7 +194,6 @@ export class ShaderPreviewPanel {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <!-- CRITICAL: Explicitly allow unpkg.com for Three.js and unsafe-inline for scripts/styles -->
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://unpkg.com; connect-src https://unpkg.com;">
             <title>${title}</title>
             <style>
@@ -229,7 +233,6 @@ export class ShaderPreviewPanel {
             <div id="canvas-container"></div>
 
             <script>
-                // Catch silent loading or runtime errors and display them visually
                 window.onerror = function(msg, url, line) {
                     const box = document.getElementById('error-box');
                     box.style.display = 'block';
@@ -258,12 +261,18 @@ export class ShaderPreviewPanel {
 
                 const uniforms = {
                     u_time: { value: 0.0 },
+                    u_delta: { value: 0.0 },
                     u_intensity: { value: 1.0 },
                     u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
                 };
 
                 try {
-                    const material = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms });
+                    const material = new THREE.ShaderMaterial({ 
+                        vertexShader, 
+                        fragmentShader, 
+                        uniforms,
+                        glslVersion: THREE.GLSL3 
+                    });
                     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
                     scene.add(mesh);
                 } catch(err) {
@@ -275,7 +284,9 @@ export class ShaderPreviewPanel {
                 const clock = new THREE.Clock();
                 function animate() {
                     requestAnimationFrame(animate);
+                    const delta = clock.getDelta();
                     uniforms.u_time.value = clock.getElapsedTime();
+                    uniforms.u_delta.value = delta;
                     renderer.render(scene, camera);
                 }
                 animate();

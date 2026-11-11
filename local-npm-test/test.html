@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GLSLH Local Test Page</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0f1115;
+        color: #e1e4e8;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      h2 {
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      p {
+        font-size: 14px;
+        color: #8b949e;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      canvas {
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      }
+      #error-box {
+        display: none;
+        margin-top: 15px;
+        padding: 12px 16px;
+        background: #89181b;
+        color: #ffd8d8;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 13px;
+        max-width: 600px;
+        white-space: pre-wrap;
+      }
+    </style>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "glslh": "./node_modules/glslh/src/dom-canvas.js",
+          "glslh/parser": "./node_modules/glslh/src/parser.js",
+          "glslh/loader": "./node_modules/glslh/src/loader.js",
+          "glslh/validator": "./node_modules/glslh/src/validator.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h2>GLSLH Modular Shader Preview</h2>
+    <p>
+      Check your browser console (F12) for duplicate function warnings and parse
+      logs.
+    </p>
+
+    <!-- Canvas configured with your data-fragment-url attribute -->
+    <canvas
+      class="glsl-canvas"
+      width="600"
+      height="400"
+      data-fragment-url="./shaders/test.glslh"
+    ></canvas>
+
+    <div id="error-box"></div>
+
+    <script type="module">
+      import { GLSLHDomCanvas } from "glslh";
+      import { translateShaderError } from "glslh/validator";
+
+      async function runTest() {
+        const canvas = document.querySelector("canvas.glsl-canvas");
+        const box = document.getElementById("error-box");
+
+        try {
+          // Initialize canvas manually to catch asynchronous shader compilation/preprocessing errors
+          const glslCanvas = new GLSLHDomCanvas(canvas);
+
+          // Wait for loader/parser resolution to catch any compilation error string
+          // (You can also hook into Three.js WebGLProgram logs if needed)
+        } catch (err) {
+          console.error("Initialization error:", err);
+          box.style.display = "block";
+
+          // Pass the error message through your AI-friendly error translator
+          box.innerText = translateShaderError(
+            err.message,
+            err.flattenedSource || "",
+          );
+        }
+      }
+
+      runTest();
+    </script>
+  </body>
+</html>

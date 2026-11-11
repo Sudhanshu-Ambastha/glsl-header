@@ -9,10 +9,10 @@
   "keywords": [],
   "type": "commonjs",
   "dependencies": {
-    "glslh": "^1.0.1",
+    "glslh": "^1.2.0",
     "three": "^0.160.0"
   },
   "devDependencies": {
-    "serve": "^14.2.4"
+    "serve": "^14.2.7"
   }
 }

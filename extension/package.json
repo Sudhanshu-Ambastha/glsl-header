@@ -1,9 +1,9 @@
 {
   "publisher": "SudhanshuAmbastha",
   "name": "glslh-previewer",
-  "displayName": "glslh-previewer",
+  "displayName": "GLSLH Previewer",
   "description": "Instant live WebGL shader previewer and preprocessor for glslh.",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
@@ -20,7 +20,8 @@
     "Formatters",
     "Languages",
     "Linters",
-    "Programming Languages"
+    "Programming Languages",
+    "Visualization"
   ],
   "activationEvents": [
     "onLanguage:glsl",
@@ -40,8 +41,9 @@
       {
         "id": "glslh",
         "aliases": [
+          "GLSL",
           "GLSLH",
-          "glslh"
+          "Shader"
         ],
         "extensions": [
           ".glslh"
@@ -80,7 +82,9 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "package-vsix": "vsce package",
+    "publish-extension": "vsce publish"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -98,6 +102,6 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "glslh": "^1.0.1"
+    "glslh": "^1.2.0"
   }
 }

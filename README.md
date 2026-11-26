@@ -28,6 +28,8 @@
 └──────────────────────────────┘
 ```
 
+````
+
 - **CPU-Side (JavaScript):** File fetching, `#include` stitching, uniform metadata parsing, Shadertoy `mainImage` / `i*` compatibility bridging, constant macro evaluation (`Math.PI`, `Math.TAU`), topological sorting for derived uniform expressions, function collision checking, error line mapping, and real-time animation loops (`requestAnimationFrame`).
 - **GPU-Side (WebGL / GLSL):** Pure parallel rasterization, vertex positioning, and fragment color blending executing simultaneously across graphics hardware cores.
 
@@ -63,6 +65,7 @@ The metadata block is an optional JSON declaration placed at the very top of you
     "u_wave": { "type": "f", "expr": "sin(u_speed) * 0.5" }
   }
 */
+
 ```
 
 ### Why use it?
@@ -71,14 +74,14 @@ In standard WebGL and Three.js, wiring JavaScript variables to shader uniforms r
 
 ### What if you forget it?
 
-**Nothing breaks.** The parser is completely fault-tolerant. If the comment block is missing, the parser simply returns an empty uniform object (`{}`), and your shader compiles and renders successfully using standard built-in uniforms (like `u_time`, `u_resolution`, and `u_mouse`).
+**Nothing breaks.** The parser is completely fault-tolerant. If the comment block is missing, the parser simply returns an empty uniform object (`{}`), and your shader compiles and renders successfully using built-in uniforms (`u_time`, `u_delta`, `u_resolution`, `u_aspect`, `u_mouse`) when referenced.
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-package/
+npm-pkg/
 ├── package.json
 ├── README.md
 └── src/
@@ -88,6 +91,7 @@ package/
     ├── dom-canvas.js     # HTML data-attribute and canvas auto-loader with mouse tracking & dispose()
     ├── expr.js           # Safe, CSP-compliant AST-based JIT expression evaluator with custom math helpers
     └── derived.js        # Topological sort & per-frame derived uniform state manager
+
 ```
 
 ---
@@ -127,6 +131,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 col = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0.0, 2.0, 4.0));
     fragColor = vec4(col, 1.0);
 }
+
 ```
 
 ### 2. Run Declaratively in HTML (`index.html`)
@@ -171,12 +176,13 @@ Serve over a local HTTP server (such as `npx serve` or VS Code Live Server) so `
 
 Want instant syntax highlighting, color pickers, and a live WebGL preview pane right inside your editor? Install the official **[GLSLH Previewer](https://marketplace.visualstudio.com/items?itemName=SudhanshuAmbastha.glslh-previewer)** extension from the marketplace:
 
-- **Live WebGL Preview:** Inspect shaders side-by-side with automatic hot-reloading on save.
+- **Focus-Free Live WebGL Preview:** Inspect shaders side-by-side on both **VS Code Desktop** and **VS Code Web**, updating live as you type, switch shader tabs, or save files.
 - **Native Color Pickers:** Click color definitions or uniform arrays in `@uniforms` or `vec3()` blocks to adjust values visually.
-- **Multi-file Resolution:** Seamlessly traces `#include` dependencies across your project directory.
+- **Multi-File Resolution:** Seamlessly traces `#include` dependencies across your project directory, including unsaved buffers and `../` relative paths.
 
 ---
 
 ## 📜 License
 
-Distributed under the **MIT License**. See [`LICENSE`](../LICENSE) for more information.
+Distributed under the [**MIT License**](./LICENSE). See for more information.
+````

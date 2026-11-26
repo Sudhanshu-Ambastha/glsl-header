@@ -10,14 +10,15 @@
 
 ## 🎨 Features
 
-- **Instant Side-by-Side Live Preview:** Open a live, interactive WebGL preview panel right inside VS Code with a single click or editor title bar command.
+- **Instant Side-by-Side Live Preview:** Open a live, interactive WebGL preview panel right inside VS Code without stealing editor focus, updating smoothly as you type, switch shader tabs, or save files.
 - **Shadertoy Entry-Point Compatibility:** Preview Shadertoy-style snippets (`mainImage`, `iTime`, `iResolution`, `iMouse`) right alongside native `.glslh` and `.glsl` shaders without manual boilerplate edits.
 - **Interactive Color Pickers:** Seamless inline color decorations and native color picker widgets for `vec3()`, `vec4()`, and JSON array color definitions (`[r, g, b, a]`), letting you adjust shader colors visually on the fly.
-- **Robust C-Style `#include` Resolution:** Powered by `glslh`, featuring recursive relative/system include resolution, circular dependency protection, and strict file extension validation.
+- **Robust C-Style `#include` Resolution:** Powered by `glslh`, featuring recursive relative and `../` parent-path resolution, live unsaved buffer lookup, circular dependency protection, per-file include rules, and `#include` directive/path syntax highlighting in `.glslh` files.
+- **Error-Safe Hot-Swaps & Recovery:** Keeps the last valid frame visible during mid-edit syntax issues, supports automatic `webglcontextrestored` recovery, and includes a **Reload Shader** action button inside the error banner.
 - **Topological Derived Uniforms & Expression Engine:** Supports chained `@uniforms` expressions sorted via Kahn's algorithm, right-associative exponentiation (`**`), and built-in software GLSL math functions (`mix`, `smoothstep`, `clamp`, etc.).
 - **Overload-Aware Static Collision Detection:** Automatically scans included modules for conflicting function signatures while fully supporting valid GLSL function overloading.
 - **AI-Friendly Error Context Mapping:** Captures WebGL compilation failures and embeds surrounding code context snippets alongside modular file and line numbers.
-- **Universal Cross-Platform Support:** Fully bundled via Webpack to run out-of-the-box on both **VS Code Desktop** and **VS Code Web** (such as GitHub.dev or browser environments).
+- **Universal Cross-Platform Support:** Fully bundled via Webpack to run out-of-the-box on both **VS Code Desktop** and **VS Code Web** (such as vscode.dev or browser environments).
 
 ---
 
@@ -26,7 +27,7 @@
 1. Open any `.glslh` or `.glsl` file in your workspace.
 2. Click the **Play** icon button in the top-right editor title bar, or open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and execute:
    > `GLSLH: Open Live Shader Preview`
-3. A side-by-side Webview panel will open, rendering your live, animated shader in real time. Any changes you save to your main file or included header files will instantly recompile and update the preview.
+3. A side-by-side Webview panel will open and start rendering immediately. Edits to your shader or included files update the preview live as you type or save, and switching between shader tabs keeps the preview in sync.
 
 ---
 
@@ -40,6 +41,7 @@ workspace/
 │   ├── header.glslh      # Main entry point with #include "./math_utils.glsl"
 │   ├── math_utils.glsl   # Reusable math functions & helper utilities
 │   └── shape_utils.glsl  # Signed distance fields / geometry math
+
 ```
 
 ---

@@ -1,6 +1,15 @@
 import * as vscode from "vscode";
 import { ShaderPreviewPanel } from "./previewPanel";
 
+function isShaderDocument(document: vscode.TextDocument): boolean {
+  if (document.languageId === "glslh" || document.languageId === "glsl") {
+    return true;
+  }
+  return /\.(glsl|glslh|frag|vert|frag\.glsl|vert\.glsl)$/i.test(
+    document.fileName,
+  );
+}
+
 export function activate(context: vscode.ExtensionContext) {
   console.log("glslh-previewer is active and ready.");
 
@@ -21,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
   const shaderDocumentSelector: vscode.DocumentSelector = [
     { language: "glslh" },
     { language: "glsl" },
-    { pattern: "**/*.{glsl,glslh,frag,vert,frag.glsl,vert.glsl}" }
+    { pattern: "**/*.{glsl,glslh,frag,vert,frag.glsl,vert.glsl}" },
   ];
 
   const colorProvider = vscode.languages.registerColorProvider(
@@ -75,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       provideColorPresentations(
         color: vscode.Color,
-        context: { document: vscode.TextDocument; range: vscode.Range },
+        ctx: { document: vscode.TextDocument; range: vscode.Range },
       ): vscode.ColorPresentation[] {
         const fmt = (n: number) => {
           const s = Number(n.toFixed(3)).toString();
@@ -87,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
         const b = fmt(color.blue);
         const a = fmt(color.alpha);
 
-        const originalText = context.document.getText(context.range);
+        const originalText = ctx.document.getText(ctx.range);
         let presentationText = `[${r}, ${g}, ${b}]`;
 
         if (originalText.startsWith("vec3")) {
@@ -106,17 +115,49 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
-  const saveListener = vscode.workspace.onDidSaveTextDocument((document) => {
+  const editorSwitchListener = vscode.window.onDidChangeActiveTextEditor(
+    (editor) => {
+      if (
+        ShaderPreviewPanel.currentPanel &&
+        editor &&
+        isShaderDocument(editor.document)
+      ) {
+        ShaderPreviewPanel.currentPanel.scheduleUpdate(editor.document, 1);
+      }
+    },
+  );
+
+  const changeListener = vscode.workspace.onDidChangeTextDocument((event) => {
+    if (event.contentChanges.length === 0) {return;}
+    const doc = event.document;
     if (
       ShaderPreviewPanel.currentPanel &&
-      document.uri.toString() ===
+      isShaderDocument(doc) &&
+      doc.uri.toString() ===
         vscode.window.activeTextEditor?.document.uri.toString()
     ) {
-      ShaderPreviewPanel.currentPanel.update(document);
+      ShaderPreviewPanel.currentPanel.scheduleUpdate(doc, 1);
     }
   });
 
-  context.subscriptions.push(previewCommand, colorProvider, saveListener);
+  const saveListener = vscode.workspace.onDidSaveTextDocument((document) => {
+    if (
+      ShaderPreviewPanel.currentPanel &&
+      isShaderDocument(document) &&
+      document.uri.toString() ===
+        vscode.window.activeTextEditor?.document.uri.toString()
+    ) {
+      ShaderPreviewPanel.currentPanel.scheduleUpdate(document, 0);
+    }
+  });
+
+  context.subscriptions.push(
+    previewCommand,
+    colorProvider,
+    editorSwitchListener,
+    changeListener,
+    saveListener,
+  );
 }
 
 export function deactivate() {}

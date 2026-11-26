@@ -1,5 +1,14 @@
 ## 📋 `glslh` Changelog
 
+### **v1.3.0** (Latest)
+
+- **Shadertoy Entry Point & Uniform Compatibility**: Added automatic `mainImage(out vec4 fragColor, in vec2 fragCoord)` $\rightarrow$ `void main()` bridging (when `main()` isn't already defined) and `iTime`, `iResolution`, and `iMouse` alias mapping to built-in `u_*` uniforms so Shadertoy-style snippets run out of the box alongside native `glslh` shaders.
+- **Comment-Safe Pre-Scan Parsing**: Stripped line and block comments before scanning for entry points, `i*` aliases, and `u_*` uniform references so commented code never triggers false shims or missing declarations.
+- **Resolution Uniform Initialization Fix**: Updated `GLSLHDomCanvas` (`dom-canvas.js`) to properly initialize and sync `u_resolution` to `(width, height)` on setup and frame updates, preventing zero-resolution / division-by-zero issues in screen-space UV math.
+- **Mixed `.glsl` & `.glslh` Canvas Support**: Verified and streamlined rendering of standalone `.glsl` shaders alongside multi-file `.glslh` (and hybrid `.glsl` + `.glslh` include) shaders across multiple `<canvas class="glsl-canvas">` instances on the same page.
+
+---
+
 ### **v1.2.0** (Latest)
 
 - **Topological Sorting for Derived Uniforms**: Upgraded `buildDerived` in `derived.js` to implement Kahn's algorithm for dependency graphs, ensuring derived uniform expressions evaluate in the correct order regardless of JSON declaration placement and throwing immediate errors on circular dependencies.

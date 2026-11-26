@@ -1,0 +1,66 @@
+float sdSegment(vec2 p, vec2 a, vec2 b) {
+    vec2 pa = p - a;
+    vec2 ba = b - a;
+    float h = clamp(dot(pa, ba) / max(dot(ba, ba), 0.00001), 0.0, 1.0);
+    return length(pa - ba * h);
+}
+
+float hash21(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+// Gentle, low-amplitude star drift so shapes stay recognizable
+vec2 driftStar(vec2 basePos, float time, float seed) {
+    float angle = time * 0.45 + seed * 6.2831;
+    vec2 offset = vec2(cos(angle), sin(angle * 0.85 + seed)) * 0.005;
+    return basePos + offset;
+}
+
+// Smoothly reveals each segment along the constellation and adds a gentle pulse
+float drawConstellationLink(
+    vec2 p,
+    vec2 a,
+    vec2 b,
+    float thickness,
+    float time,
+    float linkIndex,
+    float totalLinks
+) {
+    vec2 pa = p - a;
+    vec2 ba = b - a;
+    float lenSq = max(dot(ba, ba), 0.00001);
+    float t = clamp(dot(pa, ba) / lenSq, 0.0, 1.0);
+    float d = length(pa - ba * t);
+
+    // Slow, steady formation cycle (no rapid strobing)
+    float cycle = fract(time * 0.09);
+    float segStart = linkIndex / max(totalLinks, 1.0);
+    float segEnd = (linkIndex + 1.0) / max(totalLinks, 1.0);
+
+    // Progress along this specific segment (0..1)
+    float localProg = clamp((cycle - segStart * 0.75) / max((segEnd - segStart) * 0.75 + 0.15, 0.001), 0.0, 1.0);
+    // Once drawn, stay visible; gently dim only right at loop wrap
+    float wrapFade = 1.0 - smoothstep(0.92, 1.0, cycle) * 0.35;
+    float visible = smoothstep(t - 0.04, t + 0.02, localProg) * wrapFade;
+
+    // Crisp anti-aliased line
+    float aa = max(thickness * 0.6, 0.002);
+    float lineMask = 1.0 - smoothstep(thickness - aa, thickness + aa, d);
+
+    // Soft traveling highlight along the active/drawn line
+    float pulsePos = fract(time * 0.25 + linkIndex * 0.2);
+    float pulse = exp(-pow((t - pulsePos) * 5.0, 2.0)) * 0.25;
+
+    return clamp(lineMask * visible * (0.85 + pulse), 0.0, 1.0);
+}
+
+// Clean star core + tight glow (no wide cross-bars)
+float drawStar(vec2 p, vec2 pos, float radius, float time, float seed) {
+    float d = length(p - pos);
+    float twinkle = 0.88 + 0.12 * sin(time * 2.2 + seed * 6.2831);
+    float core = 1.0 - smoothstep(radius * 0.25, radius * 0.65, d);
+    float glow = exp(-d * (14.0 / max(radius, 0.001))) * 0.45;
+    return clamp((core + glow) * twinkle, 0.0, 1.2);
+}

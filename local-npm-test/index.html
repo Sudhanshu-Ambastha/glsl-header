@@ -51,10 +51,9 @@
       include &amp; Math.PI expansion.
     </p>
 
-    <!-- Pointing directly to shaders directory one level up -->
     <canvas
       class="glsl-canvas"
-      data-fragment-url="./shaders/header.glslh"
+      data-fragment-url="./constellations/constellations.glslh"
       width="600"
       height="400"
     ></canvas>
@@ -62,27 +61,7 @@
     <script type="module">
       import { autoInitGlslCanvases } from "glslh";
 
-      // Initialize canvases
-      const controllers = autoInitGlslCanvases();
-
-      function animate() {
-        requestAnimationFrame(animate);
-        const elapsedTime = performance.now() * 0.001;
-
-        if (controllers && Array.isArray(controllers)) {
-          controllers.forEach((ctrl) => {
-            if (ctrl.material && ctrl.material.uniforms) {
-              if (ctrl.material.uniforms.u_time) {
-                ctrl.material.uniforms.u_time.value = elapsedTime;
-              }
-              if (ctrl.material.uniforms.u_intensity) {
-                ctrl.material.uniforms.u_intensity.value = 1.0;
-              }
-            }
-          });
-        }
-      }
-      animate();
+      autoInitGlslCanvases();
     </script>
   </body>
 </html>

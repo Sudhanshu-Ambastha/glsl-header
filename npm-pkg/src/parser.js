@@ -18,6 +18,10 @@ const GLSL_TYPE = {
   v4: "vec4",
 };
 
+function stripComments(code) {
+  return code.replace(/\/\/[^\r\n]*|\/\*[\s\S]*?\*\//g, "");
+}
+
 export class GLSLHParser {
   constructor(fileResolver, standardLibraryResolver) {
     this.fileResolver =
@@ -108,6 +112,74 @@ export class GLSLHParser {
     detectFunctionCollisions(result.source);
 
     return result;
+  }
+
+  _applyShadertoyCompat(source, uniformsDefinition) {
+    const clean = stripComments(source);
+    const hasMainImage = /\bmainImage\s*\(/.test(clean);
+    const hasMain = /\bvoid\s+main\s*\(/.test(clean);
+
+    const usesITime = /\biTime\b/.test(clean);
+    const usesIResolution = /\biResolution\b/.test(clean);
+    const usesIMouse = /\biMouse\b/.test(clean);
+
+    if (!hasMainImage && !usesITime && !usesIResolution && !usesIMouse) {
+      return source;
+    }
+
+    const defines = [];
+
+    if (usesITime && !/\b(?:uniform|float)\s+iTime\b/.test(clean)) {
+      uniformsDefinition.u_time ??= {
+        type: BUILTINS.u_time.type,
+        builtin: true,
+      };
+      defines.push("#define iTime u_time");
+    }
+
+    if (
+      usesIResolution &&
+      !/\b(?:uniform|vec[23])\s+iResolution\b/.test(clean)
+    ) {
+      uniformsDefinition.u_resolution ??= {
+        type: BUILTINS.u_resolution.type,
+        builtin: true,
+      };
+      defines.push("#define iResolution vec3(u_resolution, 1.0)");
+    }
+
+    if (usesIMouse && !/\b(?:uniform|vec[24])\s+iMouse\b/.test(clean)) {
+      uniformsDefinition.u_mouse ??= {
+        type: BUILTINS.u_mouse.type,
+        builtin: true,
+      };
+      defines.push("#define iMouse vec4(u_mouse, 0.0, 0.0)");
+    }
+
+    let output = source;
+
+    if (defines.length > 0) {
+      output =
+        `// --- GLSLH Shadertoy Compatibility Aliases ---\n` +
+        `${defines.join("\n")}\n\n` +
+        output;
+    }
+
+    if (hasMainImage && !hasMain) {
+      const hasFragColorOut = /\bout\s+vec4\s+fragColor\s*;/.test(
+        stripComments(output),
+      );
+      const outDecl = hasFragColorOut ? "" : "out vec4 fragColor;\n";
+
+      output +=
+        `\n// --- GLSLH Shadertoy mainImage() Bridge ---\n` +
+        outDecl +
+        `void main() {\n` +
+        `  mainImage(fragColor, gl_FragCoord.xy);\n` +
+        `}\n`;
+    }
+
+    return output;
   }
 
   async _parseRecursive(sourceCode, currentFilePath, includedFiles) {
@@ -219,10 +291,10 @@ export class GLSLHParser {
       },
     );
 
-    const cleanCodeForScanning = processed.replace(
-      /\/\/.*|\/\*[\s\S]*?\*\//g,
-      "",
-    );
+    // Apply Shadertoy aliases & mainImage() bridge before uniform scan & declarations
+    processed = this._applyShadertoyCompat(processed, uniformsDefinition);
+
+    const cleanCodeForScanning = stripComments(processed);
     const usedUniforms = [
       ...new Set(cleanCodeForScanning.match(/\bu_\w+\b/g) ?? []),
     ];

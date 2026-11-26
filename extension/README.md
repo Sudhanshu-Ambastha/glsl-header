@@ -1,8 +1,8 @@
 # glslh-previewer ⚡
 
-> Instant live WebGL shader previewer, interactive color pickers, and C-style `#include` preprocessor for [`glslh`](https://www.npmjs.com/package/glslh) inside Visual Studio Code.
+> Instant live WebGL shader previewer, interactive color pickers, and C-style `#include` preprocessor for [`glslh`](https://www.npmjs.com/package/glslh) inside Visual Studio Code—with Shadertoy entry-point compatibility.
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/Sudhanshu-Ambastha/glsl-header)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/Sudhanshu-Ambastha/glsl-header)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code Web Ready](https://img.shields.io/badge/VS%20Code-Web%20%2F%20Desktop-green.svg)](https://code.visualstudio.com/)
 
@@ -10,13 +10,14 @@
 
 ## 🎨 Features
 
-- **Instant Side-by-Side Live Preview:** Open a live, interactive 3D WebGL preview panel right inside VS Code with a single click or editor title bar command.
+- **Instant Side-by-Side Live Preview:** Open a live, interactive WebGL preview panel right inside VS Code with a single click or editor title bar command.
+- **Shadertoy Entry-Point Compatibility:** Preview Shadertoy-style snippets (`mainImage`, `iTime`, `iResolution`, `iMouse`) right alongside native `.glslh` and `.glsl` shaders without manual boilerplate edits.
 - **Interactive Color Pickers:** Seamless inline color decorations and native color picker widgets for `vec3()`, `vec4()`, and JSON array color definitions (`[r, g, b, a]`), letting you adjust shader colors visually on the fly.
-- **Robust C-Style `#include` Resolution:** Powered by `glslh`, featuring an intelligent multi-candidate path resolver that handles relative paths (`./`), absolute paths, and nested includes seamlessly.
-- **Topological Derived Uniforms & Expression Engine:** Supports chained `@uniforms` expressions sorted via Kahn's algorithm, correct right-associative exponentiation (`**`), and built-in software GLSL math functions (`mix`, `smoothstep`, `clamp`, etc.).
+- **Robust C-Style `#include` Resolution:** Powered by `glslh`, featuring recursive relative/system include resolution, circular dependency protection, and strict file extension validation.
+- **Topological Derived Uniforms & Expression Engine:** Supports chained `@uniforms` expressions sorted via Kahn's algorithm, right-associative exponentiation (`**`), and built-in software GLSL math functions (`mix`, `smoothstep`, `clamp`, etc.).
 - **Overload-Aware Static Collision Detection:** Automatically scans included modules for conflicting function signatures while fully supporting valid GLSL function overloading.
 - **AI-Friendly Error Context Mapping:** Captures WebGL compilation failures and embeds surrounding code context snippets alongside modular file and line numbers.
-- **Universal Cross-Platform Support:** Fully optimized via Webpack to run out-of-the-box on both **VS Code Desktop** and **VS Code Web** (such as GitHub.dev or browser environments).
+- **Universal Cross-Platform Support:** Fully bundled via Webpack to run out-of-the-box on both **VS Code Desktop** and **VS Code Web** (such as GitHub.dev or browser environments).
 
 ---
 
@@ -46,7 +47,7 @@ workspace/
 ## 📦 Requirements & Dependencies
 
 - Requires an active VS Code workspace containing GLSL or `.glslh` files.
-- Bundles and utilizes the core [`glslh`](https://www.npmjs.com/package/glslh) npm preprocessor package.
+- Bundles and utilizes the core [`glslh`](https://www.npmjs.com/package/glslh) npm preprocessor package (`v1.3.0`).
 - Three.js is loaded dynamically via secure CDN inside the sandboxed Webview to keep the extension package lightweight and performant.
 
 ---

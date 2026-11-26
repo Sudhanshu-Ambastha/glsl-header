@@ -1,8 +1,20 @@
 {
   "name": "glslh",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A lightweight GLSL preprocessor and runtime bridge for modular shader development.",
   "type": "module",
+  "author": "Sudhanshu Ambastha",
+  "license": "MIT",
+  "sideEffects": false,
+  "keywords": [
+    "glsl",
+    "shaders",
+    "threejs",
+    "preprocessor",
+    "webgl",
+    "graphics",
+    "glslh"
+  ],
   "main": "./src/dom-canvas.js",
   "exports": {
     ".": "./src/dom-canvas.js",
@@ -19,18 +31,6 @@
     "url": "https://github.com/Sudhanshu-Ambastha/glsl-header/issues"
   },
   "homepage": "https://github.com/Sudhanshu-Ambastha/glsl-header#readme",
-  "keywords": [
-    "glsl",
-    "shaders",
-    "threejs",
-    "preprocessor",
-    "webgl",
-    "graphics",
-    "glslh"
-  ],
-  "author": "Sudhanshu Ambastha",
-  "license": "MIT",
-  "sideEffects": false,
   "peerDependencies": {
     "three": "^0.150.0 || ^0.160.0"
   }

@@ -1,0 +1,44 @@
+/* @uniforms
+  {
+    "u_sky_top": { "type": "c", "value": [0.06, 0.08, 0.13] },
+    "u_sky_bottom": { "type": "c", "value": [0.13, 0.16, 0.22] },
+    "u_line_color": { "type": "c", "value": [0.92, 0.78, 0.42] },
+    "u_star_color": { "type": "c", "value": [1.0, 0.88, 0.48] },
+    "u_scale": { "type": "f", "value": 1.0 }
+  }
+*/
+
+#include "./catalog.glslh"
+
+float backgroundField(vec2 uv, float time) {
+    vec2 grid = floor(uv * 38.0);
+    vec2 f = fract(uv * 38.0) - 0.5;
+    float rnd = hash21(grid);
+    float exist = step(0.86, rnd);
+    float d = length(f - (vec2(hash21(grid + 1.3), hash21(grid + 7.1)) - 0.5) * 0.5);
+    float twinkle = 0.6 + 0.4 * sin(time * 2.0 + rnd * Math.TAU);
+    return exist * smoothstep(0.18, 0.01, d) * 0.35 * twinkle;
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec2 uv = (fragCoord - 0.5 * u_resolution.xy) / u_resolution.y;
+    uv /= max(u_scale, 0.1);
+
+    // Night-sky chart backdrop
+    vec3 col = mix(u_sky_bottom, u_sky_top, clamp(uv.y + 0.5, 0.0, 1.0));
+    col += vec3(0.75, 0.82, 0.95) * backgroundField(uv, u_time);
+
+    // Place named constellations across the sky
+    vec2 c0 = evalConstellation(0, uv - vec2(-0.42,  0.20), u_time); // Ursa Major
+    vec2 c1 = evalConstellation(1, uv - vec2(-0.02,  0.22), u_time); // Cassiopeia
+    vec2 c2 = evalConstellation(2, uv - vec2( 0.38,  0.14), u_time); // Orion
+    vec2 c3 = evalConstellation(3, uv - vec2(-0.18, -0.18), u_time); // Cygnus
+
+    float allLines = clamp(c0.x + c1.x + c2.x + c3.x, 0.0, 1.0);
+    float allStars = clamp(c0.y + c1.y + c2.y + c3.y, 0.0, 1.5);
+
+    col = mix(col, u_line_color, allLines * 0.75);
+    col += u_star_color * allStars;
+
+    fragColor = vec4(col, 1.0);
+}

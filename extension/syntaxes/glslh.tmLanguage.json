@@ -3,8 +3,24 @@
   "fileTypes": ["glslh", "glsl", "frag", "vert"],
   "patterns": [
     {
-      "match": "^\\s*(#\\s*include)\\b",
-      "name": "keyword.control.directive.include.c"
+      "name": "meta.preprocessor.include.glslh",
+      "begin": "^\\s*(#\\s*include)\\s+(?:(\")|(<))",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.directive.include.c" },
+        "2": { "name": "punctuation.definition.string.begin.glslh" },
+        "3": { "name": "punctuation.definition.string.begin.glslh" }
+      },
+      "end": "(?:(\")|(>))|(?=$)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.string.end.glslh" },
+        "2": { "name": "punctuation.definition.string.end.glslh" }
+      },
+      "patterns": [
+        {
+          "match": "[^\">\\r\\n]+",
+          "name": "string.quoted.other.include.glslh"
+        }
+      ]
     },
     {
       "match": "\\bMath\\.(PI|TAU|E|LN2|LN10|LOG2E|LOG10E|SQRT1_2|SQRT2)\\b",

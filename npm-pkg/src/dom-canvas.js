@@ -49,25 +49,25 @@ export class GLSLHDomCanvas {
         }
       `;
 
-      let fragmentShader = "";
-      let uniforms = {};
-      let shaderModule = null;
-
       console.log(`GLSLH: Fetching and parsing shader module -> ${fragUrl}`);
-      shaderModule = await this.loader.loadShaderModule(fragUrl);
+      const shaderModule = await this.loader.loadShaderModule(fragUrl);
       console.log("GLSLH: Shader successfully parsed!", shaderModule);
 
-      fragmentShader = shaderModule.source;
-      uniforms = shaderModule.uniforms;
+      const fragmentShader = shaderModule.source;
+      const uniforms = shaderModule.uniforms;
 
       this.shaderModule = shaderModule;
       this.uniforms = uniforms;
 
-      if (this.uniforms.u_resolution && !this.uniforms.u_resolution.value) {
-        this.uniforms.u_resolution.value = new THREE.Vector2(
-          this.width,
-          this.height,
-        );
+      if (this.uniforms.u_resolution) {
+        if (!this.uniforms.u_resolution.value) {
+          this.uniforms.u_resolution.value = new THREE.Vector2(
+            this.width,
+            this.height,
+          );
+        } else if (typeof this.uniforms.u_resolution.value.set === "function") {
+          this.uniforms.u_resolution.value.set(this.width, this.height);
+        }
       }
       if (this.uniforms.u_time && this.uniforms.u_time.value === undefined) {
         this.uniforms.u_time.value = 0.0;
@@ -97,7 +97,7 @@ export class GLSLHDomCanvas {
     if (!this.ready) return;
     this.animationId = requestAnimationFrame(() => this.animate());
 
-    // Fix: Call getDelta() first to update the clock, then read elapsed time
+    // Call getDelta() first to update the clock, then read elapsed time
     const delta = this.clock.getDelta();
     const elapsedTime = this.clock.elapsedTime;
 
@@ -109,6 +109,12 @@ export class GLSLHDomCanvas {
     }
     if (this.uniforms.u_mouse) {
       this.uniforms.u_mouse.value.set(this.mouseX, this.mouseY);
+    }
+    if (
+      this.uniforms.u_resolution &&
+      typeof this.uniforms.u_resolution.value?.set === "function"
+    ) {
+      this.uniforms.u_resolution.value.set(this.width, this.height);
     }
 
     if (this.shaderModule && typeof this.shaderModule.update === "function") {

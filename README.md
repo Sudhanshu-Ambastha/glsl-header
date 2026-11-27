@@ -28,8 +28,6 @@
 └──────────────────────────────┘
 ```
 
-````
-
 - **CPU-Side (JavaScript):** File fetching, `#include` stitching, uniform metadata parsing, Shadertoy `mainImage` / `i*` compatibility bridging, constant macro evaluation (`Math.PI`, `Math.TAU`), topological sorting for derived uniform expressions, function collision checking, error line mapping, and real-time animation loops (`requestAnimationFrame`).
 - **GPU-Side (WebGL / GLSL):** Pure parallel rasterization, vertex positioning, and fragment color blending executing simultaneously across graphics hardware cores.
 

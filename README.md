@@ -183,4 +183,3 @@ Want instant syntax highlighting, color pickers, and a live WebGL preview pane r
 ## 📜 License
 
 Distributed under the [**MIT License**](./LICENSE). See for more information.
-````
